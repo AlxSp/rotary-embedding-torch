@@ -158,7 +158,7 @@ class RotaryEmbedding(Module):
     def get_seq_pos(self, seq_len, device, dtype, offset = 0):
         return (torch.arange(seq_len, device = device, dtype = dtype).unsqueeze(0) + offset) / self.interpolate_factor
 
-    def rotate_queries_or_keys(self, t, seq_dim = None, offset = 0, indices = None, freq_seq_len = None):
+    def rotate_queries_or_keys(self, t, seq_dim = None, offset = 0, indices = None, rot_dim_offset = 0, freq_seq_len = None):
         seq_dim = default(seq_dim, self.default_seq_dim)
 
         assert not self.use_xpos, 'you must use `.rotate_queries_and_keys` method instead and pass in both queries and keys, for length extrapolatable rotary embeddings'
@@ -178,7 +178,7 @@ class RotaryEmbedding(Module):
             freqs = rearrange(freqs, 'n d -> n 1 d')
 
         # print("freqs", freqs.shape, "t", t.shape)
-        return apply_rotary_emb(freqs, t, seq_dim = seq_dim)
+        return apply_rotary_emb(freqs, t, start_index = rot_dim_offset, seq_dim = seq_dim)
 
     def rotate_queries_with_cached_keys(self, q, k, seq_dim = None, offset = 0):
         seq_dim = default(seq_dim, self.default_seq_dim)
